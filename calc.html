@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="styles/demo.css" />
+</head>
+
+<body>
+<!-- 计算区 -->
+<div id="calc">
+    <fieldset>
+        <legend>口算考试</legend>
+        <div class="form-group">
+            <label>口算题数：</label>
+            <input type="text" v-model="exam.num"/>
+        </div>
+        <div class="form-group">
+            <label>总分：</label>
+            <span>{{exam.score}}</span>
+        </div>
+        <div class="form-group">
+            <label>考试用时：</label>
+            <span>{{exam.duration}}分钟</span>
+        </div>
+        <div class="form-group">
+            <label></label>
+            <button @click="createExam(exam)">开始考试</button>
+
+            <label></label>
+            <button @click="finishExam()">交卷</button>
+        </div>
+    </fieldset>
+    <table>
+        <thead>
+        <tr>
+            <th>题目</th>
+            <th>回答</th>
+            <th>答案</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="fm in formula">
+            <td>{{fm.first}}{{fm.op}}{{fm.second}}=</td>
+            <td><input type="text" v-model="fm.answer"/></td>
+            <td>
+                <div v-if="fm.answer == null"></div>
+                <template v-else>
+                    <div v-if="fm.result==fm.answer"><img class="scorecheck" src="image/right.png"/> </div>
+                    <div v-else><img class="scorecheck" src="image/wrong.png"/> </div>
+                </template>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+<script src="js/vue.js"></script>
+<script>
+    var calc = new Vue({
+        el:'#calc',
+        data:{
+            formula:[
+               // {
+               //     first: 0,    //第一个数
+               //     op: "+",   //运算符
+               //     second: 0,       //第二个数
+               //     result: 0,        //结果
+               //     answer:0,        //回答
+               //     score:0         //本题得分
+               // }
+            ],
+            exam:{
+                num:10,      //题数
+                score:0,     //得分
+                beginTime:0,    //开始时间
+                endTime:0,      //结束时间
+                duration:0  //考试时长
+            }
+        },
+        methods:{
+            createExam: function(exam){
+                //清空试题
+                this.formula = [];
+                //循环生成题目
+                for (var i = 0;i<exam.num;i++){
+                    var first = Math.floor(Math.random() * 1000);
+                    var second = Math.floor(Math.random() * 1000);
+                    var result = first + second;
+                    this.formula.push({first:first,op:"+",second:second,result:result,answer:null,score:0});
+                }
+                //记录时间
+                exam.beginTime=new Date().getTime();
+            },
+            finishExam:function () {
+                //记录时间
+                this.exam.endTime=new Date().getTime();
+                this.exam.duration = Math.ceil((this.exam.endTime - this.exam.beginTime) / 1000 / 60);    //分钟
+
+                //判题
+                var finalscore = 0;
+                this.formula.forEach(function (f) {
+                    if(f.result == f.answer){
+                        finalscore = finalscore + 1;
+                    }
+                })
+
+                this.exam.score = finalscore;
+            }
+        }
+    })
+</script>
+
+</html>
